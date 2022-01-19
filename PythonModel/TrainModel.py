@@ -1,3 +1,14 @@
+"""
+This file contains the model specification for two different tensorflow model.
+The first model works with spectrogram data (directly from wav files).
+The second model with melspectrogram data (generated with the librosa library).
+The model definitions can be adapted if needed and the training parameter can be changed as well.
+
+The data is taken from the /data folder.
+Both models are trained at the same run and with the same data since data preparation takes a lot of time.
+
+The two models are the stored in the /model folder and can be further processed by the other scripts.
+"""
 import librosa
 import os
 import numpy as np
@@ -13,105 +24,143 @@ from tensorflow.keras.optimizers import RMSprop
 
 from Constants import SAMPLE_RATE, AUDIO_PIECE_LENGTH, IS_MONO, N_MELS, cut_audio
 
-num_epochs = 50
-batch_size = 70
-path = "data/data2"
+RANDOM_STATE = 42
 
-all_tracks = []
-genre = []
-list_matrices = []
+# -------------------- Preparation of the data set --------------------
+path_to_training_data = "data/data3"  # Either the small or large data set can be used for the training
 
-for cls in os.listdir(path):
-    for sound in tqdm(os.listdir(os.path.join(path, cls))):
+all_audios_as_melspec = []
+all_labels = []
+all_audios_as_spec = []
 
+for label in os.listdir(path_to_training_data):
+    # Loop through all three folders of training data
+    for audio_track in tqdm(os.listdir(os.path.join(path_to_training_data, label))):
+        # Loop through all audio files
+        audio_spec, sample_rate_audio = librosa.load(os.path.join(os.path.join(path_to_training_data, label, audio_track)), sr=SAMPLE_RATE, mono=IS_MONO)
+        audio_pieces = cut_audio(audio_spec)  # Cut all audios to the same length
+        for audio_piece in audio_pieces:
+            melspect = librosa.feature.melspectrogram(y=audio_piece, sr=SAMPLE_RATE, n_mels=N_MELS)  # Calculate the melspectrogram
+            all_audios_as_melspec.append(melspect)
 
-        y, sr = librosa.load(os.path.join(os.path.join(path, cls, sound)), sr=SAMPLE_RATE, mono=IS_MONO)
-        song_pieces = cut_audio(y)
-        for song_piece in song_pieces:
-            melspect = librosa.feature.melspectrogram(y=song_piece, sr=SAMPLE_RATE, n_mels=N_MELS)
-            list_matrices.append(song_piece.reshape((AUDIO_PIECE_LENGTH, 1)))
-            all_tracks.append(melspect)
-            genre.append(cls)
+            audio_piece = audio_piece.reshape((AUDIO_PIECE_LENGTH, 1)) # Reshape the array such that the model can use it
+            all_audios_as_spec.append(audio_piece)
+
+            all_labels.append(label)
 
 encoder = LabelBinarizer()
-labels = encoder.fit_transform(np.array(genre))
+labels = encoder.fit_transform(np.array(all_labels))  #One-hot encoding of all labels
 
+# ----------------------------------------------------------------------
+# -------------------- MODEL WITH SPECTROGRAM INPUT --------------------
+# ----------------------------------------------------------------------
 
-#Train spectrogram classifier
-X_train, X_test, y_train, y_test = train_test_split(list_matrices, labels, test_size=0.33, random_state=42)
-X_val, X_test, y_val, y_test = train_test_split(X_test, y_test, test_size=0.5, random_state=42)
+num_epochs_spec = 10
+#num_epochs_spec = 100  # The number of epochs that the spectrogram model is trainer taken from the paper
+batch_size_spec = 10
+#batch_size_spec = 100  # The batch size of the spectrogram model taken from the paper
 
-X_train = np.array(X_train)
-X_test = np.array(X_test)
-X_val = np.array(X_val)
+# Train test split of the data
+x_train_spec, x_test_spec, y_train_spec, y_test_spec = train_test_split(all_audios_as_spec, labels, test_size=0.33, random_state=RANDOM_STATE)
+x_val_spec, x_test_spec, y_val_spec, y_test_spec = train_test_split(x_test_spec, y_test_spec, test_size=0.5, random_state=RANDOM_STATE)
 
-model = models.Sequential()
-model.add(layers.Conv1D(32, 4, activation='relu', input_shape=(AUDIO_PIECE_LENGTH, 1)))
-model.add(layers.MaxPooling1D(2))
-model.add(layers.Conv1D(64, 3, activation='relu'))
-model.add(layers.MaxPooling1D(2))
-model.add(layers.Conv1D(64, 3, activation='relu'))
+# Wrap the arrays, otherwise they cannot be used for training
+x_train_spec = np.array(x_train_spec)
+x_test_spec = np.array(x_test_spec)
+x_val_spec = np.array(x_val_spec)
 
-model.add(layers.Flatten())
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(3, activation="softmax"))
+# The model definition
+# Code adapted from https://github.com/Logan97117/environmental_sound_classification_1DCNN
+model_spec = models.Sequential()
+model_spec.add(layers.Conv1D(filters=16, kernel_size=64, strides=2, input_shape=(AUDIO_PIECE_LENGTH, 1)))
+model_spec.add(layers.Activation(activation='relu'))
+model_spec.add(layers.BatchNormalization())
+model_spec.add(layers.MaxPooling1D(pool_size=8, strides=8))
+model_spec.add(layers.Activation(activation='relu'))
+model_spec.add(layers.Conv1D(filters=32, kernel_size=32, strides=2))
+model_spec.add(layers.Activation(activation="relu"))
+model_spec.add(layers.BatchNormalization())
+model_spec.add(layers.MaxPooling1D(pool_size=8, strides=8))
+model_spec.add(layers.Activation(activation="relu"))
+model_spec.add(layers.Conv1D(filters=64, kernel_size=16, strides=2))
+model_spec.add(layers.Activation(activation="relu"))
+model_spec.add(layers.BatchNormalization())
+model_spec.add(layers.Conv1D(filters=128, kernel_size=8, strides=2))
+model_spec.add(layers.Activation(activation="relu"))
+model_spec.add(layers.BatchNormalization())
+model_spec.add(layers.Conv1D(filters=256, kernel_size=4, strides=2))
+model_spec.add(layers.Activation(activation="relu"))
+model_spec.add(layers.BatchNormalization())
+model_spec.add(layers.MaxPooling1D(pool_size=4, strides=4))
+model_spec.add(layers.Activation(activation="relu"))
+model_spec.add(layers.Flatten())
+model_spec.add(layers.Dense(64, activation='relu'))
+model_spec.add(layers.Dense(3, activation="softmax"))
 
-model.summary()
+model_spec.summary()
 
+# Additional parameters, also taken from the paper
+model_spec.compile(loss=tf.keras.losses.MeanSquaredLogarithmicError(), optimizer=tf.keras.optimizers.Adadelta(), metrics='accuracy')
 
-model.compile(loss=tf.keras.losses.CategoricalCrossentropy(), optimizer=RMSprop(learning_rate=0.001),  metrics='accuracy')
+history_spec = model_spec.fit(x_train_spec, y_train_spec, epochs=num_epochs_spec, batch_size=batch_size_spec, validation_data=(x_val_spec, y_val_spec))
 
-history = model.fit(X_train, y_train, epochs=num_epochs, batch_size=batch_size, validation_data=(X_val, y_val))
-
-test_loss, test_acc = model.evaluate(X_test,  y_test, verbose=2)
-
-tf.saved_model.save(model, "model/spectrogram")
-tf.keras.models.save_model(model, "model/spectrogram/keras")
+test_loss_spec, test_acc_spec = model_spec.evaluate(x_test_spec, y_test_spec, verbose=2)
 
 print("Test Loss: ")
-print(test_loss)
+print(test_loss_spec)
 print("Test Accuracy: ")
-print(test_acc)
+print(test_acc_spec)
 
+# Saving two versions of the model
+tf.saved_model.save(model_spec, "model/spectrogram")
+tf.keras.models.save_model(model_spec, "model/spectrogram/keras")
 
-#Train melspectrogram classifier
-X_train2, X_test2, y_train2, y_test2 = train_test_split(all_tracks, labels, test_size=0.33, random_state=42)
-X_val2, X_test2, y_val2, y_test2 = train_test_split(X_test2, y_test2, test_size=0.5, random_state=42)
+# -------------------------------------------------------------------------
+# -------------------- MODEL WITH MELSPECTROGRAM INPUT --------------------
+# -------------------------------------------------------------------------
 
+num_epochs_melspec = 10
+#num_epochs_melspec = 100  # The number of epochs that the spectrogram model is trainer taken from the paper
+batch_size_melspec = 10
+#batch_size_melspec = 100  # The batch size of the spectrogram model taken from the paper
 
+# Train test split of the data
+x_train_melspec, x_test_melspec, y_train_melspec, y_test_melspec = train_test_split(all_audios_as_melspec, labels, test_size=0.33, random_state=RANDOM_STATE)
+x_val_melspec, x_test_melspec, y_val_melspec, y_test_melspec = train_test_split(x_test_melspec, y_test_melspec, test_size=0.5, random_state=RANDOM_STATE)
 
-X_train2 = np.array(X_train2)
-X_test2 = np.array(X_test2)
-X_val2 = np.array(X_val2)
+# Wrap the arrays, otherwise they cannot be used for training
+x_train_melspec = np.array(x_train_melspec)
+x_test_melspec = np.array(x_test_melspec)
+x_val_melspec = np.array(x_val_melspec)
 
-model2 = models.Sequential()
-model2.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(128, 63, 1)))
-model2.add(layers.MaxPooling2D((2, 2)))
-model2.add(layers.Conv2D(64, (3, 3), activation='relu'))
-model2.add(layers.MaxPooling2D((2, 2)))
-model2.add(layers.Conv2D(64, (3, 3), activation='relu'))
+# The model definition
+model_melspec = models.Sequential()
+model_melspec.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(128, 63, 1)))
+model_melspec.add(layers.MaxPooling2D((2, 2)))
+model_melspec.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model_melspec.add(layers.MaxPooling2D((2, 2)))
+model_melspec.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model_melspec.add(layers.Flatten())
+model_melspec.add(layers.Dense(64, activation='relu'))
+model_melspec.add(layers.Dense(3, activation="softmax"))
 
-model2.add(layers.Flatten())
-model2.add(layers.Dense(64, activation='relu'))
-model2.add(layers.Dense(3, activation="softmax"))
+model_melspec.summary()
 
-model2.summary()
+# Additional parameters, also taken from the paper
+model_melspec.compile(loss=tf.keras.losses.CategoricalCrossentropy(), optimizer=RMSprop(learning_rate=0.001), metrics='accuracy')
 
-model2.compile(loss=tf.keras.losses.CategoricalCrossentropy(), optimizer=RMSprop(learning_rate=0.001),  metrics='accuracy')
-
-
-model2.summary()
 #X_train = np.array(X_train).reshape(1,-1)
 #y_train = y_train.reshape(1,-1)
 
-history2 = model2.fit(X_train2, y_train2, epochs=num_epochs, batch_size=batch_size, validation_data=(X_val2, y_val2))
+history_melspec = model_melspec.fit(x_train_melspec, y_train_melspec, epochs=num_epochs_melspec, batch_size=batch_size_melspec, validation_data=(x_val_melspec, y_val_melspec))
 
-test_loss2, test_acc2 = model2.evaluate(X_test2,  y_test2, verbose=2)
-
-tf.saved_model.save(model2, "model/melspectrogram")
-tf.keras.models.save_model(model2, "model/melspectrogram/keras")
+test_loss_melspec, test_acc_melspec = model_melspec.evaluate(x_test_melspec, y_test_melspec, verbose=2)
 
 print("Test Loss: ")
-print(test_loss2)
+print(test_loss_melspec)
 print("Test Accuracy: ")
-print(test_acc2)
+print(test_acc_melspec)
+
+# Saving two versions of the model
+tf.saved_model.save(model_melspec, "model/melspectrogram")
+tf.keras.models.save_model(model_melspec, "model/melspectrogram/keras")
