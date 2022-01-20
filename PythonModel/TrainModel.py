@@ -12,6 +12,7 @@ The two models are the stored in the /model folder and can be further processed 
 import librosa
 import os
 import numpy as np
+from keras.layers import Dropout
 
 from tqdm import tqdm
 
@@ -20,7 +21,6 @@ from sklearn.preprocessing import LabelBinarizer
 
 import tensorflow as tf
 from tensorflow.keras import layers, models
-from tensorflow.keras.optimizers import RMSprop
 
 from Constants import SAMPLE_RATE, AUDIO_PIECE_LENGTH, IS_MONO, N_MELS, cut_audio
 
@@ -120,9 +120,9 @@ tf.keras.models.save_model(model_spec, "model/spectrogram/keras")
 # -------------------------------------------------------------------------
 
 num_epochs_melspec = 10
-#num_epochs_melspec = 100  # The number of epochs that the spectrogram model is trainer taken from the paper
+#num_epochs_melspec = 50  # The number of epochs that the spectrogram model is trainer taken from the paper
 batch_size_melspec = 10
-#batch_size_melspec = 100  # The batch size of the spectrogram model taken from the paper
+#batch_size_melspec = 64  # The batch size of the spectrogram model taken from the paper
 
 # Train test split of the data
 x_train_melspec, x_test_melspec, y_train_melspec, y_test_melspec = train_test_split(all_audios_as_melspec, labels, test_size=0.33, random_state=RANDOM_STATE)
@@ -135,19 +135,22 @@ x_val_melspec = np.array(x_val_melspec)
 
 # The model definition
 model_melspec = models.Sequential()
-model_melspec.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(128, 63, 1)))
-model_melspec.add(layers.MaxPooling2D((2, 2)))
-model_melspec.add(layers.Conv2D(64, (3, 3), activation='relu'))
-model_melspec.add(layers.MaxPooling2D((2, 2)))
-model_melspec.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model_melspec.add(layers.Conv2D(24, (6, 6), activation='relu', input_shape=(128, 63, 1)))
+model_melspec.add(layers.MaxPooling2D((4, 2), strides=2))
+model_melspec.add(layers.Conv2D(48, (5, 5), activation='relu'))
+model_melspec.add(layers.MaxPooling2D((4, 2), strides=2))
+model_melspec.add(layers.Conv2D(48, (5, 5), activation='relu'))
+model_melspec.add(layers.Conv2D(60, (4, 4), activation='relu'))
+model_melspec.add(layers.Conv2D(72, (4, 4), activation='relu'))
 model_melspec.add(layers.Flatten())
-model_melspec.add(layers.Dense(64, activation='relu'))
+model_melspec.add(layers.Dense(84, activation='relu'))
+model_melspec.add(Dropout(0.5))
 model_melspec.add(layers.Dense(3, activation="softmax"))
 
 model_melspec.summary()
 
 # Additional parameters, also taken from the paper
-model_melspec.compile(loss=tf.keras.losses.CategoricalCrossentropy(), optimizer=RMSprop(learning_rate=0.001), metrics='accuracy')
+model_melspec.compile(loss=tf.keras.losses.CategoricalCrossentropy(), optimizer=tf.keras.optimizers.Adam(), metrics='accuracy')
 
 #X_train = np.array(X_train).reshape(1,-1)
 #y_train = y_train.reshape(1,-1)
