@@ -56,32 +56,6 @@
             app:switchPadding="8dp"
             app:useMaterialThemeColors="true" />
 
-        <TextView
-            android:id="@+id/overlap_factor_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/overlap_factor_label"
-            android:textColor="@color/dark_blue_gray800"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@id/input_switch"
-            app:layout_constraintTop_toBottomOf="@id/input_switch" />
-
-        <com.google.android.material.slider.Slider
-            android:id="@+id/classification_interval_slider"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="16dp"
-            android:valueFrom="100"
-            android:valueTo="975"
-            app:layout_constraintBottom_toBottomOf="@+id/overlap_factor_text_view"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/overlap_factor_text_view"
-            app:layout_constraintTop_toTopOf="@id/overlap_factor_text_view"
-            tools:value="500" />
-
         <View
             android:id="@+id/divider_view"
             android:layout_width="match_parent"
@@ -90,7 +64,7 @@
             android:layout_marginTop="32dp"
             android:layout_marginEnd="16dp"
             android:background="@color/gray400"
-            app:layout_constraintTop_toBottomOf="@id/overlap_factor_text_view" />
+            app:layout_constraintTop_toBottomOf="@id/input_switch" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
