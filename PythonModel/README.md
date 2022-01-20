@@ -1,7 +1,5 @@
 # Python Backend for Audio Classification
 This folder contains the Python backend that was used for the implementation and training of two different models.
-License, Author etc.
-
 
 ## Installation and Run Instructions
 All requirements are stored in the requirements.txt file. 
