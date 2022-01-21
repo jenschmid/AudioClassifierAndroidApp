@@ -1,14 +1,14 @@
 """
-This file contains code for testing the Spectrogram model with a single audio from a file in wav format.
+This file contains code for testing the signal model with a single audio from a file in wav format.
 """
 import tensorflow as tf
 import librosa
 
 from Constants import SAMPLE_RATE, cut_audio_pad_last, AUDIO_PIECE_LENGTH
 
-audio_path = "data/song/en001a.wav"  # The path to the audio that is loaded and used for testing
+audio_path = "data/TestTracks/Song2.wav"  # The path to the audio that is loaded and used for testing
 
-new_model = tf.keras.models.load_model('model/spectrogram/keras/')  # The path to the model that should be used
+new_model = tf.keras.models.load_model('model/signal/keras/')  # The path to the model that should be used
 
 audio, sample_rate_audio = librosa.load(audio_path, sr=SAMPLE_RATE, mono=False)
 

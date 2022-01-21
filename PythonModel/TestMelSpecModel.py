@@ -6,7 +6,7 @@ import librosa
 
 from Constants import cut_audio_pad_last, SAMPLE_RATE, N_MELS, IS_MONO
 
-audio_path = "data/song/en001a.wav"  # The path to the audio that is loaded and used for testing
+audio_path = "data/TestTracks/Speech.wav"  # The path to the audio that is loaded and used for testing
 
 new_model = tf.keras.models.load_model('model/melspectrogram/keras/')  # The path to the model that should be used
 
@@ -16,7 +16,9 @@ audio_pieces = cut_audio_pad_last(audio)  # Cut the audio into pieces since the 
 
 for audio_piece in audio_pieces:
     melspect = librosa.feature.melspectrogram(y=audio_piece, sr=SAMPLE_RATE, n_mels=N_MELS)  # Compute a melspectrogram of the audio piece
+    mfcc = librosa.feature.mfcc(y=audio_piece, sr=SAMPLE_RATE, n_mfcc=1024)  # Compute a melspectrogram of the audio piece
 
+# TODO remove line above
     melspect = melspect.reshape((1, N_MELS, 63))  # Reshape the array such that the model can use it
 
     prediction = new_model.predict(melspect)  # Predict the type of the audio and get scores for all categories
