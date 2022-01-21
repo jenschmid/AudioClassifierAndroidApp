@@ -71,14 +71,7 @@ class MainActivity : AppCompatActivity() {
                 adapter = probabilitiesAdapter
             }
 
-            // Input switch to turn on/off classification with mel spectrogram
-            keepScreenOn(inputSwitch.isChecked)
-            inputSwitch.setOnCheckedChangeListener { _, isChecked ->
-                stopAudioClassification()
-                useMelSpectrogram = isChecked
-                keepScreenOn(isChecked)
-                startAudioClassification()
-            }
+
         }
 
         // Create a handler to run classification in a background thread
@@ -128,10 +121,6 @@ class MainActivity : AppCompatActivity() {
             classifier = audioClassifierSpec!!
         }
 
-
-        // Initialize the audio classifier
-        val audioTensor = classifier.createInputTensorAudio()
-
         // Initialize the audio recorder
         val record = classifier.createAudioRecord()
         record.startRecording()
@@ -142,30 +131,8 @@ class MainActivity : AppCompatActivity() {
                val startTime = System.currentTimeMillis()
                 val output: List<Classifications>
                 if (useMelSpectrogram) {
-//                    var bytesRead = 0
-//                    val floatInputBuffer = FloatArray(AUDIO_PIECE_LENGTH)
-//                    while (bytesRead < AUDIO_PIECE_LENGTH) {
-//                        audioTensor.load(record)
-//                        println("Short writing to file")
-//                        val remainingFloat =
-//                            audioTensor.tensorBuffer.buffer.asFloatBuffer().remaining()
-//                        if (AUDIO_PIECE_LENGTH - bytesRead > remainingFloat) {
-//                            audioTensor.tensorBuffer.buffer.asFloatBuffer()
-//                                .get(floatInputBuffer, bytesRead, remainingFloat)
-//                            bytesRead = bytesRead + remainingFloat
-//                        } else {
-//                            audioTensor.tensorBuffer.buffer.asFloatBuffer()
-//                                .get(floatInputBuffer, bytesRead, (AUDIO_PIECE_LENGTH - bytesRead))
-//                            bytesRead = bytesRead + (AUDIO_PIECE_LENGTH - bytesRead)
-//                        }
-//                    }
-//                    record.stop();
-
-
                 val tensorCreated = TensorAudio.create(record.format, 32000);
                 tensorCreated.load(record)
-                    val buffer: TensorBuffer = tensorCreated.getTensorBuffer()
-                    val flatArray1: FloatArray = tensorCreated.tensorBuffer.floatArray
 
 
                     println("Creating spectrogram")
@@ -177,72 +144,18 @@ class MainActivity : AppCompatActivity() {
                         hop_length
                     )
 
-                    val mfcc = jLibrosa.generateMFCCFeatures(
-                        tensorCreated.tensorBuffer.floatArray,
-                        SAMPLE_RATE,
-                        nfft,
-                        n_mels,
-                        hop_length
-                    )
-
                     val flatArray: FloatArray = Floats.concat(*spectogram2)
 
                     val audioTensor2 = TensorAudio.create(record.format, flatArray.size);
 
-                    var bytesCopied = 0
-                    val floatInputBufferOutput = FloatArray(flatArray.size)
-
                     audioTensor2.load(flatArray)
 
-//                    while (bytesCopied < flatArray.size) {
-//
-//                        val remaining = flatArray.size - bytesCopied
-//                        if (remaining < 4000) {
-//                            audioTensor2.load(
-//                                flatArray.copyOfRange(bytesCopied, remaining),
-//                                bytesCopied,
-//                                remaining
-//                            )
-//                            bytesCopied = bytesCopied + remaining
-//                        } else {
-//                            audioTensor2.load(
-//                                flatArray.copyOfRange(
-//                                    bytesCopied,
-//                                    bytesCopied + 4000
-//                                ), bytesCopied, 4000
-//                            )
-//                            bytesCopied = bytesCopied + 4000
-//                        }
-//
-//                    }
                     output = classifier.classify(audioTensor2)
 
 
                 } else {
                     val tensorCreated = TensorAudio.create(record.format, 32000);
                     tensorCreated.load(record)
-
-
-//                    var bytesRead = 0
-//                    val floatInputBuffer = FloatArray(songPieceSize)
-//                    while (bytesRead < songPieceSize) {
-//                        audioTensor.load(record)
-//                        println("Short writing to file")
-//                        val remainingFloat = songPieceSize - bytesRead
-//                        if (songPieceSize - bytesRead > remainingFloat) {
-//                            audioTensor.tensorBuffer.buffer.asFloatBuffer()
-//                                .get(floatInputBuffer, bytesRead, remainingFloat)
-//                            tensorCreated.load(floatInputBuffer)
-//                            bytesRead = bytesRead + remainingFloat
-//                        } else {
-//                          val readSize = 4000
-//                            audioTensor.tensorBuffer.buffer.asFloatBuffer()
-//                                .get(floatInputBuffer, bytesRead, readSize)
-//                            tensorCreated.load(floatInputBuffer, bytesRead, readSize)
-//                            bytesRead = bytesRead + readSize
-//                        }
-//                    }
-                    //record.stop();
                     output = classifier.classify(tensorCreated)
                 }
 
