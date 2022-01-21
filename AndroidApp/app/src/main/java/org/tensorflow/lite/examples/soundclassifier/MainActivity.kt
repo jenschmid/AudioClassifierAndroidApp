@@ -18,6 +18,7 @@ package org.tensorflow.lite.examples.soundclassifier
 
 import JLibrosa.JLibrosa
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.media.AudioRecord
 import android.os.Build
@@ -35,6 +36,8 @@ import org.tensorflow.lite.examples.soundclassifier.databinding.ActivityMainBind
 import org.tensorflow.lite.support.audio.TensorAudio
 import org.tensorflow.lite.task.audio.classifier.AudioClassifier
 import org.tensorflow.lite.task.audio.classifier.Classifications
+import android.media.AudioManager
+import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 
 
 class MainActivity : AppCompatActivity() {
@@ -47,7 +50,7 @@ class MainActivity : AppCompatActivity() {
     private var audioRecord: AudioRecord? = null
     private var classificationInterval = 500L // how often should classification run in milli-secs
 
-    var useMelSpectrogram = false
+    var useMelSpectrogram = true
 
     private var AUDIO_PIECE_LENGTH = 32000
     private var SAMPLE_RATE = 16000
@@ -71,8 +74,10 @@ class MainActivity : AppCompatActivity() {
             // Input switch to turn on/off classification with mel spectrogram
             keepScreenOn(inputSwitch.isChecked)
             inputSwitch.setOnCheckedChangeListener { _, isChecked ->
+                stopAudioClassification()
                 useMelSpectrogram = isChecked
                 keepScreenOn(isChecked)
+                startAudioClassification()
             }
         }
 
@@ -88,6 +93,21 @@ class MainActivity : AppCompatActivity() {
         audioClassifierMel = AudioClassifier.createFromFile(this, MODEL_FILE_MEL)
         audioClassifierSpec = AudioClassifier.createFromFile(this, MODEL_FILE_SPEC)
 
+
+        val am: AudioManager
+        am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        am.mode = AudioManager.MODE_IN_COMMUNICATION
+        val volume = am.getStreamVolume(0)
+        am.setStreamVolume(1, am.getStreamMaxVolume(1),  0)
+        am.setStreamVolume(2, am.getStreamMaxVolume(2),  0)
+        am.setStreamVolume(3, am.getStreamMaxVolume(3),  0)
+        am.setStreamVolume(4, am.getStreamMaxVolume(4),  0)
+        am.setStreamVolume(5, am.getStreamMaxVolume(5),  0)
+        am.setStreamVolume(6, am.getStreamMaxVolume(6),  0)
+        am.setStreamVolume(7, am.getStreamMaxVolume(7),  0)
+        am.setStreamVolume(8, am.getStreamMaxVolume(8),  0)
+        am.setStreamVolume(9, am.getStreamMaxVolume(9),  0)
+        am.setStreamVolume(0, am.getStreamMaxVolume(0),  0)
 
         // Request microphone permission and start running classification
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -119,32 +139,46 @@ class MainActivity : AppCompatActivity() {
         // Define the classification runnable
         val run = object : Runnable {
             override fun run() {
-                val startTime = System.currentTimeMillis()
+               val startTime = System.currentTimeMillis()
                 val output: List<Classifications>
                 if (useMelSpectrogram) {
-                    var bytesRead = 0
-                    val floatInputBuffer = FloatArray(AUDIO_PIECE_LENGTH)
-                    while (bytesRead < AUDIO_PIECE_LENGTH) {
-                        audioTensor.load(record)
-                        println("Short writing to file")
-                        val remainingFloat =
-                            audioTensor.tensorBuffer.buffer.asFloatBuffer().remaining()
-                        if (AUDIO_PIECE_LENGTH - bytesRead > remainingFloat) {
-                            audioTensor.tensorBuffer.buffer.asFloatBuffer()
-                                .get(floatInputBuffer, bytesRead, remainingFloat)
-                            bytesRead = bytesRead + remainingFloat
-                        } else {
-                            audioTensor.tensorBuffer.buffer.asFloatBuffer()
-                                .get(floatInputBuffer, bytesRead, (AUDIO_PIECE_LENGTH - bytesRead))
-                            bytesRead = bytesRead + (AUDIO_PIECE_LENGTH - bytesRead)
-                        }
-                    }
-                    record.stop();
+//                    var bytesRead = 0
+//                    val floatInputBuffer = FloatArray(AUDIO_PIECE_LENGTH)
+//                    while (bytesRead < AUDIO_PIECE_LENGTH) {
+//                        audioTensor.load(record)
+//                        println("Short writing to file")
+//                        val remainingFloat =
+//                            audioTensor.tensorBuffer.buffer.asFloatBuffer().remaining()
+//                        if (AUDIO_PIECE_LENGTH - bytesRead > remainingFloat) {
+//                            audioTensor.tensorBuffer.buffer.asFloatBuffer()
+//                                .get(floatInputBuffer, bytesRead, remainingFloat)
+//                            bytesRead = bytesRead + remainingFloat
+//                        } else {
+//                            audioTensor.tensorBuffer.buffer.asFloatBuffer()
+//                                .get(floatInputBuffer, bytesRead, (AUDIO_PIECE_LENGTH - bytesRead))
+//                            bytesRead = bytesRead + (AUDIO_PIECE_LENGTH - bytesRead)
+//                        }
+//                    }
+//                    record.stop();
+
+
+                val tensorCreated = TensorAudio.create(record.format, 32000);
+                tensorCreated.load(record)
+                    val buffer: TensorBuffer = tensorCreated.getTensorBuffer()
+                    val flatArray1: FloatArray = tensorCreated.tensorBuffer.floatArray
 
 
                     println("Creating spectrogram")
                     val spectogram2 = jLibrosa.generateMelSpectroGram(
-                        floatInputBuffer,
+                        tensorCreated.tensorBuffer.floatArray,
+                        SAMPLE_RATE,
+                        nfft,
+                        n_mels,
+                        hop_length
+                    )
+
+                    val mfcc = jLibrosa.generateMFCCFeatures(
+                        tensorCreated.tensorBuffer.floatArray,
                         SAMPLE_RATE,
                         nfft,
                         n_mels,
@@ -160,27 +194,27 @@ class MainActivity : AppCompatActivity() {
 
                     audioTensor2.load(flatArray)
 
-                    while (bytesCopied < flatArray.size) {
-
-                        val remaining = flatArray.size - bytesCopied
-                        if (remaining < 4000) {
-                            audioTensor2.load(
-                                flatArray.copyOfRange(bytesCopied, remaining),
-                                bytesCopied,
-                                remaining
-                            )
-                            bytesCopied = bytesCopied + remaining
-                        } else {
-                            audioTensor2.load(
-                                flatArray.copyOfRange(
-                                    bytesCopied,
-                                    bytesCopied + 4000
-                                ), bytesCopied, 4000
-                            )
-                            bytesCopied = bytesCopied + 4000
-                        }
-
-                    }
+//                    while (bytesCopied < flatArray.size) {
+//
+//                        val remaining = flatArray.size - bytesCopied
+//                        if (remaining < 4000) {
+//                            audioTensor2.load(
+//                                flatArray.copyOfRange(bytesCopied, remaining),
+//                                bytesCopied,
+//                                remaining
+//                            )
+//                            bytesCopied = bytesCopied + remaining
+//                        } else {
+//                            audioTensor2.load(
+//                                flatArray.copyOfRange(
+//                                    bytesCopied,
+//                                    bytesCopied + 4000
+//                                ), bytesCopied, 4000
+//                            )
+//                            bytesCopied = bytesCopied + 4000
+//                        }
+//
+//                    }
                     output = classifier.classify(audioTensor2)
 
 
