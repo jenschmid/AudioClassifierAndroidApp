@@ -38,8 +38,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="12dp"
         android:paddingTop="?attr/actionBarSize">
-
 
         <View
             android:id="@+id/divider_view"
@@ -51,6 +51,32 @@
             android:background="@color/gray400"
             app:layout_constraintTop_toBottomOf="@id/divider_view" />
 
+        <TextView
+            android:id="@+id/overlap_factor_text_view_classification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="16dp"
+            android:text="@string/clasfication_running"
+            android:textColor="@color/dark_blue_gray800"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider_view" />
+
+        <TextView
+            android:id="@+id/overlap_factor_text_view_speak_loud"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:text="@string/speak_loued"
+            android:textColor="@color/dark_blue_gray800"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/overlap_factor_text_view_classification" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
@@ -61,7 +87,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/divider_view"
+            app:layout_constraintTop_toTopOf="@id/overlap_factor_text_view_speak_loud"
             tools:itemCount="3"
             tools:listitem="@layout/item_probability" />
     </androidx.constraintlayout.widget.ConstraintLayout>
