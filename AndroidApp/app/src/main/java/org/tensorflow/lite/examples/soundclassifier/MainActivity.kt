@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
     private var audioClassifier: AudioClassifier? = null
     private var audioRecord: AudioRecord? = null
 
-
     private var CLASSIFICATION_INTERVAL = 500L //How often should classification run in milli-secs
 
     // The following parameters must have the same value as the ones that were used
@@ -108,7 +107,7 @@ class MainActivity : AppCompatActivity() {
         if (audioClassifier != null) return
 
         // Else, load the tensorflow lite classification model from a file
-        val classifier = AudioClassifier.createFromFile(this, MODEL_FILE)
+        val classifier = AudioClassifier.createFromFile(this, MODEL_FILE_PATH)
 
         // Initialize the audio recorder and start recording
         val record = classifier.createAudioRecord()
@@ -247,7 +246,7 @@ class MainActivity : AppCompatActivity() {
         const val REQUEST_RECORD_AUDIO = 1337
         private const val TAG = "AudioDemo"
 
-        private const val MODEL_FILE = "model_mel_metadata.tflite" // Path to the model
+        private const val MODEL_FILE_PATH = "model_mel_metadata.tflite" // Path to the model
         private const val USE_MEL_SPEC = true // This should be set to true if the loaded model works with mel spectrograms
 
         private const val MINIMUM_DISPLAY_THRESHOLD: Float = 0.00000001f
