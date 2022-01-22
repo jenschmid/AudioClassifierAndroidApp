@@ -17,8 +17,8 @@ public class JLibrosa {
      *
      * @param yValues the input audio sample
      * @param mSampleRate the sample rate of the audio sample
-     * @param n_fft the number of ffts that is used for the spectrogram calculation
-     * @param n_mels the number of mels that is used for the spectrogram calculation
+     * @param n_fft the number of ffts that is used for the mel spectrogram calculation
+     * @param n_mels the number of mels that is used for the mel spectrogram calculation
      * @param hop_length the hop length of the mel spectrogram calculation
      * @return a mel spectrogram of the given input audio
      */

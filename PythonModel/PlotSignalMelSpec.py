@@ -1,5 +1,5 @@
 """
-This script plots a sample signal and melspectrogram as a visual plot.
+This script plots a sample signal and mel spectrogram as a visual plot.
 The used signal is an array of length 32000 in a separate file and can be changed if wished.
 """
 

@@ -50,8 +50,10 @@ class MainActivity : AppCompatActivity() {
 
 
     private var CLASSIFICATION_INTERVAL = 500L //How often should classification run in milli-secs
-    private var SAMPLE_RATE = 16000 //The sample rate of the input audio
 
+    // The following parameters must have the same value as the ones that were used
+    // for the model creation. For more information about the values, please check the README
+    private var SAMPLE_RATE = 16000 //The sample rate of the input audio
     private var NUMBER_OF_FFT = 2048 //Number of ffts that is used for the mel spectrogram
     private var NUMBER_OF_MELS = 128 //The number of mels that is used for the mel spectrogram
     private var HOP_LENGTH = 512 //The hop length that is used for the mel spectrogram
@@ -125,7 +127,7 @@ class MainActivity : AppCompatActivity() {
                 // Check if the classification method should use mel spectrograms
                 if (USE_MELSPECTROGRAM) {
 
-                    // If yes, spectrograms need to be calculated with the JLibrosa library
+                    // If yes, mel spectrograms need to be calculated with the JLibrosa library
                     val spectogram2 = jLibrosa.generateMelSpectroGram(
                         inputTensor.tensorBuffer.floatArray,
                         SAMPLE_RATE,
@@ -134,13 +136,13 @@ class MainActivity : AppCompatActivity() {
                         HOP_LENGTH
                     )
 
-                    // The calculated spectrogram must be reshaped into the right form
+                    // The calculated mel spectrogram must be reshaped into the right form
                     val flatArray: FloatArray = Floats.concat(*spectogram2)
                     val spectrogramTensor = TensorAudio.create(record.format, flatArray.size)
                     spectrogramTensor.load(flatArray)
                     result = classifier.classify(spectrogramTensor)
                 } else {
-                    // If mel spectrograms are not used, use the raw input for classification
+                    // If mel spectrograms are not used, use the raw input signal for classification
                     result = classifier.classify(inputTensor)
                 }
 

@@ -3,6 +3,8 @@ This file contains all constants and helper functions that are used in the diffe
 """
 import numpy as np
 
+# The following parameters must have the same value as in the front end
+# For more information, please check the README
 SAMPLE_RATE = 16000  # The sample rate of all audios used in the project
 AUDIO_PIECE_LENGTH = SAMPLE_RATE * 2  # The length of each audio piece as specified by the task
 N_MELS = 128  # The number of mels used in the mel spectrograms

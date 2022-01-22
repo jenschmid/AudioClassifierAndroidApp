@@ -29,7 +29,7 @@ RANDOM_STATE = 42
 # -------------------- Preparation of the data set --------------------
 path_to_training_data = "data/data_silent"  # Either the small or large data set can be used for the training
 
-all_audios_as_mfcc = []
+all_audios_as_mel_spec = []
 all_labels = []
 all_audios_as_signal = []
 
@@ -40,8 +40,8 @@ for label in os.listdir(path_to_training_data):
         audio_signal, sample_rate_audio = librosa.load(os.path.join(os.path.join(path_to_training_data, label, audio_track)), sr=SAMPLE_RATE, mono=IS_MONO)
         audio_pieces = cut_audio(audio_signal)  # Cut all audios to the same length
         for audio_piece in audio_pieces:
-            mfcc = librosa.feature.mfcc(y=audio_piece, sr=SAMPLE_RATE, n_mels=N_MELS)  # Calculate the melspectrogram
-            all_audios_as_mfcc.append(mfcc)
+            mel_spectrogram = librosa.feature.melspectrogram(y=audio_piece, sr=SAMPLE_RATE, n_mels=N_MELS) # Calculate the melspectrogram
+            all_audios_as_mel_spec.append(mel_spectrogram)
 
             audio_piece = audio_piece.reshape((AUDIO_PIECE_LENGTH, 1)) # Reshape the array such that the model can use it
             all_audios_as_signal.append(audio_piece)
@@ -55,9 +55,7 @@ labels = encoder.fit_transform(np.array(all_labels))  #One-hot encoding of all l
 # -------------------- MODEL WITH SIGNAL INPUT --------------------
 # ----------------------------------------------------------------------
 
-#num_epochs_signal = 10
 num_epochs_signal = 100  # The number of epochs that the signal model is trainer taken from the paper
-#batch_size_signal = 10
 batch_size_signal = 100  # The batch size of the signal model taken from the paper
 
 # Train test split of the data
@@ -116,16 +114,14 @@ tf.saved_model.save(model_signal, "model/signal")
 tf.keras.models.save_model(model_signal, "model/signal/keras")
 
 # -------------------------------------------------------------------------
-# -------------------- MODEL WITH MELSPECTROGRAM INPUT --------------------
+# -------------------- MODEL WITH MEL SPECTROGRAM INPUT -------------------
 # -------------------------------------------------------------------------
 
-#num_epochs_melspec = 10
 num_epochs_melspec = 50  # The number of epochs that the spectrogram model is trainer taken from the paper
-#batch_size_melspec = 10
 batch_size_melspec = 64  # The batch size of the spectrogram model taken from the paper
 
 # Train test split of the data
-x_train_melspec, x_test_melspec, y_train_melspec, y_test_melspec = train_test_split(all_audios_as_mfcc, labels, test_size=0.33, random_state=RANDOM_STATE)
+x_train_melspec, x_test_melspec, y_train_melspec, y_test_melspec = train_test_split(all_audios_as_mel_spec, labels, test_size=0.33, random_state=RANDOM_STATE)
 x_val_melspec, x_test_melspec, y_val_melspec, y_test_melspec = train_test_split(x_test_melspec, y_test_melspec, test_size=0.5, random_state=RANDOM_STATE)
 
 # Wrap the arrays, otherwise they cannot be used for training
@@ -151,9 +147,6 @@ model_melspec.summary()
 
 # Additional parameters, also taken from the paper
 model_melspec.compile(loss=tf.keras.losses.CategoricalCrossentropy(), optimizer=tf.keras.optimizers.Adam(), metrics='accuracy')
-
-#X_train = np.array(X_train).reshape(1,-1)
-#y_train = y_train.reshape(1,-1)
 
 history_melspec = model_melspec.fit(x_train_melspec, y_train_melspec, epochs=num_epochs_melspec, batch_size=batch_size_melspec, validation_data=(x_val_melspec, y_val_melspec))
 

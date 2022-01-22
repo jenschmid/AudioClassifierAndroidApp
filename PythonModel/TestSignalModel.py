@@ -7,9 +7,9 @@ import librosa
 from Constants import SAMPLE_RATE, cut_audio_pad_last, AUDIO_PIECE_LENGTH
 
 audio_path = "data/TestTracks/Song2.wav"  # The path to the audio that is loaded and used for testing
+model_path = "model/signal/keras/"  # The path to the model that should be used
 
-new_model = tf.keras.models.load_model('model/signal/keras/')  # The path to the model that should be used
-
+new_model = tf.keras.models.load_model(model_path)
 audio, sample_rate_audio = librosa.load(audio_path, sr=SAMPLE_RATE, mono=False)
 
 audio_pieces = cut_audio_pad_last(audio)  # Cut the audio into pieces since the model can only handle fixed size pieces
