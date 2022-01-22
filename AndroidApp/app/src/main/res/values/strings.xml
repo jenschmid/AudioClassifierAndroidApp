@@ -3,5 +3,5 @@
     <string name="label_input" translatable="false">Use Mel Spectrogram:</string>
     <string name="tensorflow_lite_logo" translatable="false">TensorFlow Lite Logo</string>
     <string name="clasfication_running" translatable="false">Text classfication is running.</string>
-    <string name="speak_loued" translatable="false">Please speak or sing loud and clearly.</string>
+    <string name="speak_loud" translatable="false">Please speak or sing loud and clearly.</string>
 </resources>

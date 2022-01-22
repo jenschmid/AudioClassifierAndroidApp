@@ -25,6 +25,11 @@ import androidx.recyclerview.widget.RecyclerView
 import org.tensorflow.lite.examples.soundclassifier.databinding.ItemProbabilityBinding
 import org.tensorflow.lite.support.label.Category
 
+
+/**
+ * This Class handles the probabilities of the classes predicted by the model.
+ * To find more about tis code please check: https://github.com/tensorflow/examples/tree/master/lite/examples/sound_classification/android
+ */
 internal class ProbabilitiesAdapter : RecyclerView.Adapter<ProbabilitiesAdapter.ViewHolder>() {
   var categoryList: List<Category> = emptyList()
 

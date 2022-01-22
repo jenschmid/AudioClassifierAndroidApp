@@ -5,43 +5,38 @@ import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 
+
 /**
  * This Class calculates the MFCC, STFT values of given audio samples.
- *
+ * Only the relevant parts are taken from this GitHub project.
+ * To find more about tis code please check: https://github.com/Subtitle-Synchronizer/jlibrosa
  * Source based on https://github.com/chiachunfu/speech/blob/master/speechandroid/src/org/tensorflow/demo/mfcc/MFCC.java
- *
  * @author abhi-rawat1
- *
  */
 public class AudioFeatureExtraction {
 
-    private int n_mfcc = 40;
-    private double sampleRate = 44100.0;
-
-
-    private int length = -1;
+    private double sampleRate = 32000;
     private double fMax = sampleRate / 2.0;
-    private double fMin = 0.0;
+    private final double fMin = 0.0;
     private int n_fft = 2048;
     private int hop_length = 512;
     private int n_mels = 128;
 
-
-
-
-
+    /**
+     * Variable for holding Sample Rate value
+     *
+     * @param sampleRateVal the sample rate of the input audios
+     */
+    public void setSampleRate(double sampleRateVal) {
+        sampleRate = sampleRateVal;
+        this.fMax = this.sampleRate / 2.0;
+    }
 
     /**
      * Variable for holding Sample Rate value
      *
-     * @param sampleRateVal
+     * @param n_fft the sample rate of the input audios
      */
-    public void setSampleRate(double sampleRateVal) {
-        sampleRate = sampleRateVal;
-        this.fMax = this.sampleRate/2.0;
-    }
-
-
     public void setN_fft(int n_fft) {
         this.n_fft = n_fft;
     }
@@ -54,28 +49,22 @@ public class AudioFeatureExtraction {
         this.n_mels = n_mels;
     }
 
-
-
-
-
-
-
     /**
      * This function generates mel spectrogram values with extracted STFT features as complex values
      *
-     * @param y
-     * @return
+     * @param y the input audio sample
+     * @return the mel spectrogram
      */
-    public float [][] melSpectrogramWithComplexValueProcessing(float[] y) {
+    public float[][] melSpectrogramWithComplexValueProcessing(float[] y) {
 
         Complex[][] spectro = extractSTFTFeaturesAsComplexValues(y, true);
         double[][] spectroAbsVal = new double[spectro.length][spectro[0].length];
 
-        for(int i=0;i<spectro.length;i++) {
-            for(int j=0;j<spectro[0].length;j++) {
+        for (int i = 0; i < spectro.length; i++) {
+            for (int j = 0; j < spectro[0].length; j++) {
                 Complex complexVal = spectro[i][j];
                 double spectroDblVal = Math.sqrt((Math.pow(complexVal.getReal(), 2) + Math.pow(complexVal.getImaginary(), 2)));
-                spectroAbsVal[i][j] = Math.pow(spectroDblVal,2);
+                spectroAbsVal[i][j] = Math.pow(spectroDblVal, 2);
             }
         }
 
@@ -89,35 +78,26 @@ public class AudioFeatureExtraction {
             }
         }
         return melS;
-
-
     }
-
 
     /**
      * This function extracts the STFT values as complex values
      *
-     * @param y
-     * @return
+     * @param y the input audio sample
+     * @param paddingFlag flag that indicated whether the input audio should be padded or not
+     * @return the STFT values of an input audio sample
      */
-
     public Complex[][] extractSTFTFeaturesAsComplexValues(float[] y, boolean paddingFlag) {
 
         // Short-time Fourier transform (STFT)
         final double[] fftwin = getWindow();
 
-        // pad y with reflect mode so it's centered. This reflect padding implementation
-        // is
+        // pad y with reflect mode so it's centered
         final double[][] frame = padFrame(y, paddingFlag);
-        double[][] fftmagSpec = new double[1 + n_fft / 2][frame[0].length];
 
         double[] fftFrame = new double[n_fft];
 
-        Complex [][] complex2DArray = new Complex[1+n_fft/2][frame[0].length];
-        Complex [] cmplx1DArr = new Complex [n_fft];
-
-
-        float [][] invFrame = new float [n_fft][frame[0].length];
+        Complex[][] complex2DArray = new Complex[1 + n_fft / 2][frame[0].length];
 
         for (int k = 0; k < frame[0].length; k++) {
             int fftFrameCounter = 0;
@@ -126,92 +106,46 @@ public class AudioFeatureExtraction {
                 fftFrameCounter = fftFrameCounter + 1;
             }
 
-            double[] tempConversion = new double[fftFrame.length];
-            double[] tempImag = new double[fftFrame.length];
-
             FastFourierTransformer transformer = new FastFourierTransformer(DftNormalization.STANDARD);
 
             try {
                 Complex[] complx = transformer.transform(fftFrame, TransformType.FORWARD);
 
-                Complex[] Invcomplx = transformer.transform(complx, TransformType.INVERSE);
-
                 //FFT transformed data will be over the length of FFT
                 //data will be sinusoidal in nature - so taking the values of 1+n_fft/2 only for processing
-                for(int i=0;i<1+n_fft/2;i++) {
+                for (int i = 0; i < 1 + n_fft / 2; i++) {
                     complex2DArray[i][k] = complx[i];
-
                 }
 
+                Complex[] cmplxINV1DArr = new Complex[n_fft];
 
-
-                Complex [] cmplxINV1DArr = new Complex [n_fft];
-
-
-                for(int j=0;j<1+n_fft/2;j++) {
+                for (int j = 0; j < 1 + n_fft / 2; j++) {
                     cmplxINV1DArr[j] = complex2DArray[j][k];
                 }
 
                 int j_index = 2;
-                for(int k1=1+n_fft/2;k1<n_fft;k1++){
-                    cmplxINV1DArr[k1]=new Complex(cmplxINV1DArr[k1-j_index].getReal(), -1 * cmplxINV1DArr[k1-j_index].getImaginary());
+                for (int k1 = 1 + n_fft / 2; k1 < n_fft; k1++) {
+                    cmplxINV1DArr[k1] = new Complex(cmplxINV1DArr[k1 - j_index].getReal(), -1 * cmplxINV1DArr[k1 - j_index].getImaginary());
                     j_index = j_index + 2;
                 }
 
-                Complex[] complx1 = transformer.transform(cmplxINV1DArr, TransformType.INVERSE);
-
-
-                for(int p=0;p<complx1.length;p++) {
-                    if(fftwin[p]!=0) {
-                        invFrame[p][k] = (float) (complx1[p].getReal()/fftwin[p]);
-                        //invFrame[p][i] = (float) (complx[p].getReal() * fftwin[p]);
-                    }else {
-                        invFrame[p][k] = 0;
-                    }
-                }
-
-
             } catch (IllegalArgumentException e) {
-                System.out.println(e);
-            }
-
-        }
-
-
-        float [] yValues = new float [(hop_length * (invFrame[0].length-1) + n_fft)];
-
-        for (int i = 0; i < n_fft; i++) {
-            for (int j = 0; j < invFrame[0].length; j++) {
-                yValues[j*hop_length + i] = invFrame[i][j];
-
+                System.out.println(e.getMessage());
             }
         }
-
-
         return complex2DArray;
-
     }
-
-
-
-
-
-
 
     /**
      * This function pads the y values
      *
-     * @param yValues
-     * @return
+     * @param yValues the input audio sample
+     * @param paddingFlag flag that indicated whether the input should be padded or not
+     * @return the padded input audio sample
      */
-
-    private double[][] padFrame(float[] yValues, boolean paddingFlag){
-
-        double[][] frame = null;
-
-        if(paddingFlag) {
-
-
+    private double[][] padFrame(float[] yValues, boolean paddingFlag) {
+        double[][] frame;
+        if (paddingFlag) {
             double[] ypad = new double[n_fft + yValues.length];
             for (int i = 0; i < n_fft / 2; i++) {
                 ypad[(n_fft / 2) - i - 1] = yValues[i + 1];
@@ -220,30 +154,21 @@ public class AudioFeatureExtraction {
             for (int j = 0; j < yValues.length; j++) {
                 ypad[(n_fft / 2) + j] = yValues[j];
             }
-
             frame = yFrame(ypad);
-        }
-        else {
-
-
+        } else {
             double[] yDblValues = new double[yValues.length];
-            for (int i = 0 ; i < yValues.length; i++)
-            {
-                yDblValues[i] = (double) yValues[i];
+            for (int i = 0; i < yValues.length; i++) {
+                yDblValues[i] = yValues[i];
             }
-
             frame = yFrame(yDblValues);
-
         }
-
         return frame;
     }
 
-
     /**
-     * This function is used to get hann window, librosa
+     * This function is used to get a hann window
      *
-     * @return
+     * @return the hann window
      */
     private double[] getWindow() {
         // Return a Hann window for even n_fft.
@@ -257,17 +182,14 @@ public class AudioFeatureExtraction {
     }
 
     /**
-     * This function is used to apply padding and return Frame
+     * This function is used to apply padding and return the frame
      *
-     * @param ypad
-     * @return
+     * @param ypad the padded input audio sample
+     * @return the padded input audio sample
      */
     private double[][] yFrame(double[] ypad) {
-
         final int n_frames = 1 + (ypad.length - n_fft) / hop_length;
-
         double[][] winFrames = new double[n_fft][n_frames];
-
         for (int i = 0; i < n_fft; i++) {
             for (int j = 0; j < n_frames; j++) {
                 winFrames[i][j] = ypad[j * hop_length + i];
@@ -276,14 +198,11 @@ public class AudioFeatureExtraction {
         return winFrames;
     }
 
-
-
-
     /**
      * This function is used to create a Filterbank matrix to combine FFT bins into
      * Mel-frequency bins.
      *
-     * @return
+     * @return the Filterbank matrix
      */
     private double[][] melFilter() {
         // Create a Filterbank matrix to combine FFT bins into Mel-frequency bins.
@@ -291,7 +210,6 @@ public class AudioFeatureExtraction {
         final double[] fftFreqs = fftFreq();
         // 'Center freqs' of mel bands - uniformly spaced between limits
         final double[] melF = melFreq(n_mels + 2);
-
         double[] fdiff = new double[melF.length - 1];
         for (int i = 0; i < melF.length - 1; i++) {
             fdiff[i] = melF[i + 1] - melF[i];
@@ -317,12 +235,11 @@ public class AudioFeatureExtraction {
                     weights[i][j] = lowerF;
                 } else if (lowerF < upperF && lowerF < 0) {
                     weights[i][j] = 0;
-                } else {
                 }
             }
         }
 
-        double enorm[] = new double[n_mels];
+        double[] enorm = new double[n_mels];
         for (int i = 0; i < n_mels; i++) {
             enorm[i] = 2.0 / (melF[i + 2] - melF[i]);
             for (int j = 0; j < fftFreqs.length; j++) {
@@ -330,14 +247,12 @@ public class AudioFeatureExtraction {
             }
         }
         return weights;
-
-        // need to check if there's an empty channel somewhere
     }
 
     /**
-     * To get fft frequencies
+     * This function is used to get fft frequencies for a given number of ffts
      *
-     * @return
+     * @return the fft frequencies
      */
     private double[] fftFreq() {
         // Alternative implementation of np.fft.fftfreqs
@@ -349,10 +264,10 @@ public class AudioFeatureExtraction {
     }
 
     /**
-     * To get mel frequencies
+     * This function is used to get the mel frequencies fir given maximal and minimal frequency
      *
-     * @param numMels
-     * @return
+     * @param numMels the number of mels that is used for the calculation of the mel frequencies
+     * @return the mel frequencies
      */
     private double[] melFreq(int numMels) {
         // 'Center freqs' of mel bands - uniformly spaced between limits
@@ -369,14 +284,11 @@ public class AudioFeatureExtraction {
         return melToFreq(mels);
     }
 
-
-
-
     /**
-     * To convert mel frequencies into hz frequencies
+     * This function is used to convert mel frequencies into hz frequencies
      *
-     * @param mels
-     * @return
+     * @param mels the mel frequencies
+     * @return the hz frequencies
      */
     private double[] melToFreq(double[] mels) {
         // Fill in the linear scale
@@ -400,10 +312,10 @@ public class AudioFeatureExtraction {
     }
 
     /**
-     * To convert hz frequencies into mel frequencies
+     * This function is used to convert hz frequencies into mel frequencies
      *
-     * @param freqs
-     * @return
+     * @param freqs the hz frequencies
+     * @return the mel frequencies
      */
     protected double[] freqToMel(double[] freqs) {
         final double f_min = 0.0;
@@ -411,7 +323,6 @@ public class AudioFeatureExtraction {
         double[] mels = new double[freqs.length];
 
         // Fill in the log-scale part
-
         final double min_log_hz = 1000.0; // beginning of log region (Hz)
         final double min_log_mel = (min_log_hz - f_min) / f_sp; // # same (Mels)
         final double logstep = Math.log(6.4) / 27.0; // step size for log region
@@ -425,5 +336,4 @@ public class AudioFeatureExtraction {
         }
         return mels;
     }
-
 }

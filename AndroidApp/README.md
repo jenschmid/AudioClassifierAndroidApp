@@ -37,11 +37,17 @@ In the original code, the classification interval was variable and could be adap
 ## Resources and References
 
 JLibrosa code
+Guava 
+Tensorflow Lite
+Apache Comons Math3
+
 
 This Android application demonstrates how to classify sound on-device. It uses:
 
 * [TFLite Task Library](https://www.tensorflow.org/lite/inference_with_metadata/task_library/overview)
-* [YAMNet](https://tfhub.dev/google/lite-model/yamnet/classification/tflite/1),
+* [YAMNet](https://tfhub.dev/google/lite-model/yamnet/classification/tflite/1)
+* [JLibrosa](https://github.com/Subtitle-Synchronizer/jlibrosa)
+* [Android Sound Classification App](https://github.com/tensorflow/examples/tree/master/lite/examples/sound_classification/android)
 an audio event classification model.
 
 ## Requirements

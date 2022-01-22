@@ -70,7 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:layout_marginLeft="16dp"
-            android:text="@string/speak_loued"
+            android:text="@string/speak_loud"
             android:textColor="@color/dark_blue_gray800"
             android:textSize="16sp"
             android:textStyle="bold"
