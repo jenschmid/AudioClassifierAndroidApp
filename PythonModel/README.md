@@ -1,36 +1,37 @@
 # Python Backend for Audio Classification
 This folder contains the Python backend that was used for the implementation and training of two different neural network models.
-The two models are then used in an Android App for sound classification.
-For more information about the Android App please check [this Link](https://github.com/jeschm/AudioClassifierAndroidApp/tree/main/AndroidApp).
+The two models are then used in an Android App for audio classification.
+For more information about the Android App please check [this link](https://github.com/jeschm/AudioClassifierAndroidApp/tree/main/AndroidApp).
 
 ##General Comments
-Since the task was to create a model that predicts the class of the last two seconds of the audio input from an 
-Android App, we use the following parameter in the whole application:
-* ```SAMPLE_RATE``` refers to the sample rate of the audio input and it is 16'000 or 16kHz since this is supported by 
-  the microphone on the testing Android device
-* ```AUDIO_PIECE_LENGTH``` rfers to the size of one audio input piece and it is 32'000 since we use a frequency of 
+Since the task is to create a model that predicts the class of the last two seconds of audio input from an 
+Android device, we use the following parameter in the whole application:
+* `SAMPLE_RATE` refers to the sample rate of the audio input and it is 16'000 or 16kHz since this is supported by 
+  the microphone on the tested Android device
+* `AUDIO_PIECE_LENGTH` refers to the size of one audio input piece and it is 32'000 since we use a frequency of 
   16kHz and a sample length of 2 seconds
-* ```N_MELS``` refers to the number of mels that are used for the creation of the mel spectrograms and it is 128
+* `N_MELS` refers to the number of mels that are used for the creation of the mel spectrograms and it is 128
 * Model related parameter such as batch size or number of training epochs are taken directly from the papers
 
 ## Installation and Run Instructions
 All requirements are stored in the requirements.txt file. 
-In order to install them, please run the command ```pip install```.
+In order to install them, please run the command `pip install`.
 
-To create the models please run the following scripts:
+To create the models please run the following scripts and adapt the paths directly in the scripts:
 
-1. ```TrainModel.py```
-2. ```ConvertModelToTFLite.py```
-3. ```WriteMetadataToModel.py```
+1. `TrainModel.py`
+2. `ConvertModelToTFLite.py`
+3. `WriteMetadataToModel.py`
 
-After running all three scripts, copy the tensorflow lite model that contains the metadata to your Android App.
+After running all three scripts, copy the tensorflow lite model that contains the metadata 
+(e.g. `model/melspectrogram/converted/model_mel_metadata.tflite`) to your Android App.
 
 ## Script Explanation
 This section gives a short introduction to each script.
 All scripts can be run without arguments and the parameters can be changed directly in the scripts.
 
 ### Constants.py
-This file contains all global constants that are used by multiple scripts such as the sample rate of audio tracks
+This file contains all global constants that are used by multiple scripts such as the sample rate of audio samples
 or the length of audio pieces used by the model.
 In addition, it contains helper methods.
 Constants can be changed but must always be the same as in the front end to get meaningful results.
@@ -60,42 +61,44 @@ Both models are saved for further processing.
 ### ConvertModelToTFLite.py
 This file contains a script that transforms a tensorflow model (.pb) to a tensorflow lite (.tflite) model.
 The lite models are needed by the front end.
+Please adapt the path to the model that you want to convert directly in this script.
 
 The code is taken from: [https://www.tensorflow.org/lite/convert](https://www.tensorflow.org/lite/convert)
 ### WriteMetadataToModel.py
 This script writes metadata to the tensorflow lite model since this is required by the front end.
+Please adapt the path to the model that you want to write metadata to directly in this script.
 
 The code is taken from: [https://colab.research.google.com/github/tensorflow/tensorflow/blob/master/tensorflow/lite/g3doc/convert/metadata_writer_tutorial.ipynb](https://colab.research.google.com/github/tensorflow/tensorflow/blob/master/tensorflow/lite/g3doc/convert/metadata_writer_tutorial.ipynb)
 
 ### PlotSignalMelSpec.py
 This script plots a sample audio signal for visual inspection as a spectrogram and a mel spectrogram.
-The sample is a one dimensional array taken from ```SampleSignal.py```.
+The sample is a one dimensional array taken from `SampleSignal.py`.
 
 ### SampleSignal.py
-This file contains a sample audio signal that can be plotted in the script ```PlotSignalMelSpec.py```.
+This file contains a sample audio signal that can be plotted in the script `PlotSignalMelSpec.py`.
 
 ### TestSignalModel.py
-This script takes one audio track as input and predicts the labels for it with the one dimensional Signal model.
-If an audio track is longer that the track length that was used for the model creation, it is cut into smaller pieces of the required length.
+This script takes one audio sample as input and predicts the labels for it with the one-dimensional Signal model.
+If an audio sample is longer that the sample length that was used for the model creation, it is cut into smaller pieces of the required length.
 For all pieces, the prediction is then run.
 
-The prediction function is called with the raw audio input from the .wav file without further preprocessing.
-The script handles the input processing and cutting of audio tracks by itself.
+The prediction function is called with the raw audio input from the .wav file without further pre-processing.
+The script handles the input processing and cutting of audio sample by itself.
 
 ### TestMelSpecModel.py
-This script takes one audio track as input and predicts the labels for it with the two dimensional Mel Spectrogram model.
-If an audio track is longer that the track length that was used for the model creation, it is cut into smaller pieces of the required length.
+This script takes one audio sample as input and predicts the labels for it with the two-dimensional Mel Spectrogram model.
+If an audio sample is longer that the sample length that was used for the model creation, it is cut into smaller pieces of the required length.
 
 For all pieces, a mel spectrogram is computed by the [Librosa](https://librosa.org) library.
 This mel spectrogram is then used for running the model prediction.
 The model runs the prediction for each audio piece.
-The script handles the input processing, cutting of audio tracks, and computation of mel spectrograms by itself.
+The script handles the input processing, cutting of audio sample, and computation of mel spectrograms by itself.
 
 ## Data 
 Since the task is to predict three different classes, the training data must also cover these three classes.
 The data for the training of the model was taken from the following resources:
 
-Speech:[The Flickr 8k Audio Caption Corpus](https://dagshub.com/michizhou/Flickr-Audio-Caption-Corpus)
+Speech: [The Flickr 8k Audio Caption Corpus](https://dagshub.com/michizhou/Flickr-Audio-Caption-Corpus)
 
 Song: [CSD: Children's Song Dataset for Singing Voice Research](https://zenodo.org/record/4785016#.YYkpOtZBxqv) 
 and [VocalSet: A Singing Voice Dataset](https://zenodo.org/record/1193957)
@@ -103,12 +106,14 @@ and [VocalSet: A Singing Voice Dataset](https://zenodo.org/record/1193957)
 Silence: Privately recorded with the tool [Audacity](https://www.audacityteam.org/).
 
 Since the audio data was not always in the right form, pre-processing has been applied to the data with the tool [Audacity](https://www.audacityteam.org/).
-The audio data was converted from stereo to mono, converted to a sample rate of 16kHz and for the song and speech data sets, silence was manually removed (e.g. at the beginning of an audio track).
-In addition, several speech audio samples were combined into one track since not all of them were long enough.
-This resulted in several speech audio files that consist of multiple speech samples (in a serial form) from different people.
+The audio data was converted from stereo to mono, converted to a sample rate of 16kHz and for the song and speech 
+data sets, silence was manually removed (e.g. at the beginning of an audio sample).
+In addition, since not all speech audio samples were long enough (2 seconds), several speech audio samples were 
+combined into one file to get samples of the required length.
+This resulted in several speech audio files that consist of multiple speech samples (in a serial form).
 
 The data is organised in two folders: `data_short` and `data_long`.
-The `data_long` folder contains all available pre-processed tracks and is used for the actual training.
+The `data_long` folder contains all available pre-processed audio sample and is used for the actual training of the model.
 The `data_short` folder contains only a small subset of all available pre-processed data.
 It is mainly used for testing the whole pipeline since it requires less time.
 

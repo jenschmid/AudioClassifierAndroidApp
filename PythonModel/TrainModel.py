@@ -1,7 +1,7 @@
 """
-This file contains the model specification for two different tensorflow model.
+This file contains the model specification for two different tensorflow models.
 The first model works with signal data (directly from wav files).
-The second model with melspectrogram data (generated with the librosa library).
+The second model works with mel spectrogram data (generated with the Librosa library).
 The model definitions can be adapted if needed and the training parameter can be changed as well.
 
 The data is taken from the /data folder.
@@ -29,9 +29,9 @@ RANDOM_STATE = 42
 # -------------------- Preparation of the data set --------------------
 path_to_training_data = "data/data_long"  # Either the small or large data set can be used for the training
 
-all_audios_as_mel_spec = []
 all_labels = []
 all_audios_as_signal = []
+all_audios_as_mel_spec = []
 
 for label in os.listdir(path_to_training_data):
     # Loop through all three folders of training data
@@ -49,14 +49,14 @@ for label in os.listdir(path_to_training_data):
             all_labels.append(label)
 
 encoder = LabelBinarizer()
-labels = encoder.fit_transform(np.array(all_labels))  #One-hot encoding of all labels
+labels = encoder.fit_transform(np.array(all_labels))  # One-hot encoding of all labels
 
 # ----------------------------------------------------------------------
-# -------------------- MODEL WITH SIGNAL INPUT --------------------
+# ---------------------- MODEL WITH SIGNAL INPUT -----------------------
 # ----------------------------------------------------------------------
 
-num_epochs_signal = 100  # The number of epochs that the signal model is trainer taken from the paper
-batch_size_signal = 100  # The batch size of the signal model taken from the paper
+num_epochs_signal = 100  # The number of epochs that is used for training (taken from the paper)
+batch_size_signal = 100  # The batch size that is used for training (taken from the paper)
 
 # Train test split of the data
 x_train_signal, x_test_signal, y_train_signal, y_test_signal = train_test_split(all_audios_as_signal, labels, test_size=0.33, random_state=RANDOM_STATE)
@@ -117,8 +117,8 @@ tf.keras.models.save_model(model_signal, "model/signal/keras")
 # -------------------- MODEL WITH MEL SPECTROGRAM INPUT -------------------
 # -------------------------------------------------------------------------
 
-num_epochs_melspec = 50  # The number of epochs that the spectrogram model is trainer taken from the paper
-batch_size_melspec = 64  # The batch size of the spectrogram model taken from the paper
+num_epochs_melspec = 50  # The number of epochs that is used for training (taken from the paper)
+batch_size_melspec = 64  # The batch size that is used for training (taken from the paper)
 
 # Train test split of the data
 x_train_melspec, x_test_melspec, y_train_melspec, y_test_melspec = train_test_split(all_audios_as_mel_spec, labels, test_size=0.33, random_state=RANDOM_STATE)
@@ -129,7 +129,7 @@ x_train_melspec = np.array(x_train_melspec)
 x_test_melspec = np.array(x_test_melspec)
 x_val_melspec = np.array(x_val_melspec)
 
-# The model definition
+# The model definition (taken from the paper)
 model_melspec = models.Sequential()
 model_melspec.add(layers.Conv2D(24, (6, 6), activation='relu', input_shape=(128, 63, 1)))
 model_melspec.add(layers.MaxPooling2D((4, 2), strides=2))

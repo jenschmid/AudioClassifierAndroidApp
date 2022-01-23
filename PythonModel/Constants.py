@@ -13,12 +13,12 @@ IS_MONO = False  # Since all audios used in this project are converted to mono (
 
 def cut_audio(audio):
     """
-    This method cuts an audio in pieces with length AUDIO_PIECE_LENGTH.
-    The remainder of an audio that does not fit into such a piece is omitted.
+    This method cuts an audio sample into pieces with length AUDIO_PIECE_LENGTH.
+    The remainder of an audio sample that does not have length AUDIO_PIECE_LENGTH is omitted.
 
-    :param audio: An audio in the form or a one-dimensional numeric array (length does not matter)
+    :param audio: An audio signal in the form or a one-dimensional numeric array (length does not matter)
 
-    :return audio_pieces: A list of pieces of the audio of length AUDIO_PIECE_LENGTH
+    :return audio_pieces: A list of audio sample pieces of length AUDIO_PIECE_LENGTH
     """
     start = 0
     end = len(audio)
@@ -34,12 +34,12 @@ def cut_audio(audio):
 
 def cut_audio_pad_last(audio):
     """
-    This method cuts an audio in pieces with length AUDIO_PIECE_LENGTH.
-    The remainder of an audio that does not fit into such a piece is padded by zeroes and added to the list.
+    This method cuts an audio sample into pieces with length AUDIO_PIECE_LENGTH.
+    The remainder of an audio sample that does not have length AUDIO_PIECE_LENGTH is padded with zeros and included.
 
-    :param audio: An audio in the form or a one-dimensional numeric array (length does not matter)
+    :param audio: AAn audio signal in the form or a one-dimensional numeric array (length does not matter)
 
-    :return audio_pieces: A list of pieces of the audio of length AUDIO_PIECE_LENGTH
+    :return audio_pieces: A list of audio sample pieces of length AUDIO_PIECE_LENGTH
     """
     start = 0
     end = len(audio)
@@ -50,7 +50,7 @@ def cut_audio_pad_last(audio):
         audio_pieces.append(audio[start:start + AUDIO_PIECE_LENGTH])
         start += AUDIO_PIECE_LENGTH
 
-    # Add the remainder of an audio and pad it to match the length of all pieces
+    # Pad the remainder of an audio sample with zeroes to match the length of all pieces and add it to the list
     last_piece = audio[start:end]
     last_piece = np.pad(last_piece, (0, AUDIO_PIECE_LENGTH - (end - start)), 'constant')
     audio_pieces.append(last_piece)

@@ -7,11 +7,11 @@ For more information check: https://www.tensorflow.org/lite/convert
 """
 import tensorflow as tf
 
-MODEL_PATH = "model/melspectrogram/"
-SAVE_TO_PATH = "model/melspectrogram/converted/model_mel.tflite"
+MODEL_PATH = "model/melspectrogram/"  # path to the SavedModel directory
+SAVE_TO_PATH = "model/melspectrogram/converted/model_mel.tflite"  # save path for the converted model
 
 # Convert the model
-converter = tf.lite.TFLiteConverter.from_saved_model(MODEL_PATH)  # path to the SavedModel directory
+converter = tf.lite.TFLiteConverter.from_saved_model(MODEL_PATH)
 tflite_model = converter.convert()
 
 # Save the model.

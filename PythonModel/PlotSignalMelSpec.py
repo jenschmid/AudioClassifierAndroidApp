@@ -1,6 +1,6 @@
 """
 This script plots a sample signal and mel spectrogram as a visual plot.
-The used signal is an array of length 32000 in a separate file and can be changed if wished.
+The used signal is an array of length 32000 in a separate file and can be changed if needed.
 """
 
 import matplotlib.pyplot as plot
