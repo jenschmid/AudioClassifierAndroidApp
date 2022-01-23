@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity() {
     private var NUMBER_OF_FFT = 2048 //Number of ffts that is used for the mel spectrogram
     private var NUMBER_OF_MELS = 128 //The number of mels that is used for the mel spectrogram
     private var HOP_LENGTH = 512 //The hop length that is used for the mel spectrogram
+    private var AUDIO_PIECE_LENGTH = 32000 //The length of an audio sample (SAMPLE_RATE * 2 seconds)
 
     var USE_MELSPECTROGRAM =
         USE_MEL_SPEC //Indicates whether mel spectrograms should be used for the classification
@@ -120,7 +121,7 @@ class MainActivity : AppCompatActivity() {
                 val result: List<Classifications>
 
                 // Load the microphone input
-                val inputTensor = TensorAudio.create(record.format, 32000)
+                val inputTensor = TensorAudio.create(record.format, AUDIO_PIECE_LENGTH)
                 inputTensor.load(record)
 
                 // Check if the classification method should use mel spectrograms
@@ -137,15 +138,18 @@ class MainActivity : AppCompatActivity() {
 
                     // The calculated mel spectrogram must be reshaped into the right form
                     val flatArray: FloatArray = Floats.concat(*spectogram2)
+
+                    // The reshaped mel spectrogram is loaded to an input tensor
                     val spectrogramTensor = TensorAudio.create(record.format, flatArray.size)
                     spectrogramTensor.load(flatArray)
+
                     result = classifier.classify(spectrogramTensor)
                 } else {
                     // If mel spectrograms are not used, use the raw input signal for classification
                     result = classifier.classify(inputTensor)
                 }
 
-                // Filter out results above a certain threshold, and sort them descendingly
+                // Filter out results below a certain threshold, and sort them descendingly
                 val filteredModelOutput = result[0].categories.filter {
                     it.score > MINIMUM_DISPLAY_THRESHOLD
                 }.sortedBy {
@@ -170,7 +174,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * This method stops the audio classification and removes the audio record and classifier from the class
+     * This method stops the audio classification and removes the audio record and classifier
      */
     private fun stopAudioClassification() {
         handler.removeCallbacksAndMessages(null)
@@ -192,7 +196,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * This method handles the result of the permission check
+     * This method handles the result of the microphone permission check
      */
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -226,7 +230,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     /**
      * Handles the onDestroy event (when the App is closed).
      * The method releases all resources and changes the AudioMode back to normal
@@ -243,7 +246,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val REQUEST_RECORD_AUDIO = 1337
+        const val REQUEST_RECORD_AUDIO = 1337 // The Code for requesting microphone permission
         private const val TAG = "AudioDemo"
 
         private const val MODEL_FILE_PATH = "model_mel_metadata.tflite" // Path to the model

@@ -4,27 +4,27 @@ into the classes "speech", "song" and "silence".
 
 The structure of the app was taken and adapted from the 
 [Tensorflow Sound Classification App](https://github.com/tensorflow/examples/tree/master/lite/examples/sound_classification/android).
-Please refer to this project for further information about the App.
+Please refer to this project for further information.
 
 ##General Comments
-Since the task was to create a model that predicts the class of the last two seconds of the audio input from an 
-Android App, we use the following parameter in the whole application:
-* ```SAMPLE_RATE``` refers to the sample rate of the audio input and it is 16'000 or 16kHz since this is supported by 
-  the microphone on the testing Android device
-* ```AUDIO_PIECE_LENGTH``` rfers to the size of one audio input piece and it is 32'000 since we use a frequency of 
+Since the task is to create a model that predicts the class of the last two seconds of audio input from an 
+Android device, we use the following parameter in the whole application:
+* `SAMPLE_RATE` refers to the sample rate of the audio input and it is 16'000 or 16kHz since this is supported by 
+  the microphone on the tested Android device
+* `AUDIO_PIECE_LENGTH` refers to the size of one audio input piece and it is 32'000 since we use a frequency of 
   16kHz and a sample length of 2 seconds
-* ```N_MELS``` refers to the number of mels that are used for the creation of the mel spectrograms and it is 128
+* `N_MELS` refers to the number of mels that are used for the creation of the mel spectrograms and it is 128
 * Model related parameter such as batch size or number of training epochs are taken directly from the papers
 
 ## Installation and Run Instructions
-The App was implemented in Android Studio.
+The App was implemented in [Android Studio](https://developer.android.com/studio).
 The minimal requirements for the App are Android version 6.0 (Marshmallow) and SDK 23.
 
 All requirements are handled in gradle.
 Run a gradle sync to download all required libraries.
 
 To start the app, use either an Android device emulator or an Android smartphone and start the App 
-in [Android Studio](https://developer.android.com/studio).
+in Android Studio.
 
 ## Tensorflow Lite Model
 The tensorflow lite model used in this App was created and trained in the project 

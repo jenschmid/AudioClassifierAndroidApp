@@ -5,7 +5,6 @@ import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 
-
 /**
  * This Class calculates the MFCC, STFT values of given audio samples.
  * Only the relevant parts are taken from this GitHub project.
@@ -15,17 +14,17 @@ import org.apache.commons.math3.transform.TransformType;
  */
 public class AudioFeatureExtraction {
 
-    private double sampleRate = 32000;
-    private double fMax = sampleRate / 2.0;
-    private final double fMin = 0.0;
-    private int n_fft = 2048;
-    private int hop_length = 512;
-    private int n_mels = 128;
+    private double sampleRate = 32000; //the sample rate of the audio sample
+    private double fMax = sampleRate / 2.0; //the max frequency
+    private final double fMin = 0.0; //the min frequency
+    private int n_fft = 2048; //the number of ffts that is used for the mel spectrogram calculation
+    private int hop_length = 512; //the hop length of the mel spectrogram calculation
+    private int n_mels = 128; //the number of mels that is used for the mel spectrogram calculation
 
     /**
-     * Variable for holding Sample Rate value
+     * Variable for setting the sampleRate value
      *
-     * @param sampleRateVal the sample rate of the input audios
+     * @param sampleRateVal the sample rate that should be used
      */
     public void setSampleRate(double sampleRateVal) {
         sampleRate = sampleRateVal;
@@ -33,24 +32,34 @@ public class AudioFeatureExtraction {
     }
 
     /**
-     * Variable for holding Sample Rate value
+     * Variable for setting the number of ffts
      *
-     * @param n_fft the sample rate of the input audios
+     * @param n_fft the number of ffts that should be used
      */
     public void setN_fft(int n_fft) {
         this.n_fft = n_fft;
     }
 
+    /**
+     * Variable for setting the hop length
+     *
+     * @param hop_length the hop length that should be used
+     */
     public void setHop_length(int hop_length) {
         this.hop_length = hop_length;
     }
 
+    /**
+     * Variable for setting the number of mels
+     *
+     * @param n_mels the number of mels that should be used
+     */
     public void setN_mels(int n_mels) {
         this.n_mels = n_mels;
     }
 
     /**
-     * This function generates mel spectrogram values with extracted STFT features as complex values
+     * This function generates mel spectrogram with extracted STFT features as complex values
      *
      * @param y the input audio sample
      * @return the mel spectrogram
