@@ -148,4 +148,4 @@ cython_debug/
 .idea/
 
 # Project specific
-data
+data.zip
