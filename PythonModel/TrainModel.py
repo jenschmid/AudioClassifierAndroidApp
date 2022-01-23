@@ -27,7 +27,7 @@ from Constants import SAMPLE_RATE, AUDIO_PIECE_LENGTH, IS_MONO, N_MELS, cut_audi
 RANDOM_STATE = 42
 
 # -------------------- Preparation of the data set --------------------
-path_to_training_data = "data/data_silent"  # Either the small or large data set can be used for the training
+path_to_training_data = "data/data_long"  # Either the small or large data set can be used for the training
 
 all_audios_as_mel_spec = []
 all_labels = []
@@ -158,5 +158,5 @@ print("Test Accuracy: ")
 print(test_acc_melspec)
 
 # Saving two versions of the model
-tf.saved_model.save(model_melspec, "model/melspectrogram2")
-tf.keras.models.save_model(model_melspec, "model/melspectrogram2/keras")
+tf.saved_model.save(model_melspec, "model/melspectrogram")
+tf.keras.models.save_model(model_melspec, "model/melspectrogram/keras")

@@ -134,36 +134,36 @@ Expert Systems with Applications,
 Volume 136, pages 252-263,2019. 
 doi: https://doi.org/10.1016/j.eswa.2019.06.040.
 
-<a id="2">[2]</a> 
-Zohaib Mushtaq and Shun-Feng Su and Quoc-Viet Tran. 
-Spectral images based environmental sound classification using CNN with meaningful data augmentation.
-Applied Acoustics,
-Volume 172, 2021. 
-doi: https://doi.org/10.1016/j.apacoust.2020.107581.
-
-<a id="3">[3]</a> 
+<a id="1">[1]</a> 
 Soonbeom Choi and Wonil Kim and Saebyul Park and Sangeon Yong and Juhan Nam.
 Children’s Song Dataset for Singing Voice Research. 
 21th International Society for Music Information Retrieval Conference (ISMIR), 2020. 
 URL: https://zenodo.org/record/4785016#.YYkpOtZBxqv.
 
-<a id="4">[4]</a> 
-Julia Wilkins and Seetharaman Prem and Alison Wahl and Bryan Pardo.
-VocalSet: A Singing Voice Dataset.
-19th International Society for Music Information Retrieval Conference (ISMIR), 
-pages 468-474, 2018.
-URL: https://zenodo.org/record/1193957.
-
-<a id="5">[5]</a>
+<a id="2">[2]</a>
 David Harwath and James Glass.
 Deep Multimodal Semantic Embeddings for Speech and Images.
 2015 IEEE Automatic Speech Recognition and Understanding Workshop, 
 pages 237-244, 2015.
 doi: https://doi.org/10.1109/ASRU.2015.7404800.
 
-<a id="5">[5]</a>
+<a id="3">[3]</a>
 Micah Hodosh and Peter Young and Julia Hockenmaier.
 Framing Image Description as a Ranking Task: Data, Models and Evaluation Metrics.
 Journal of Artificial Intelligence Research, 
 Volume 47, pages 853-899, 2013. 
 doi: https://doi.org/10.1613/jair.3994.
+
+<a id="4">[4]</a> 
+Zohaib Mushtaq and Shun-Feng Su and Quoc-Viet Tran. 
+Spectral images based environmental sound classification using CNN with meaningful data augmentation.
+Applied Acoustics,
+Volume 172, 2021. 
+doi: https://doi.org/10.1016/j.apacoust.2020.107581.
+
+<a id="5">[5]</a> 
+Julia Wilkins and Seetharaman Prem and Alison Wahl and Bryan Pardo.
+VocalSet: A Singing Voice Dataset.
+19th International Society for Music Information Retrieval Conference (ISMIR), 
+pages 468-474, 2018.
+URL: https://zenodo.org/record/1193957.

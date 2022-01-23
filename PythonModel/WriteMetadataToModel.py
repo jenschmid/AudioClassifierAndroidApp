@@ -12,13 +12,13 @@ from tflite_support.metadata_writers import writer_utils
 from Constants import SAMPLE_RATE
 
 AudioClassifierWriter = audio_classifier.MetadataWriter
-MODEL_PATH = "model/spectrogram2/converted/model_spec.tflite"
+MODEL_PATH = "model/signal/converted/model_signal.tflite"
 # Task Library expects label files that are in the same format as the one below.
 LABEL_FILE = "labels.txt"
 # Expected number of channels of the input audio buffer. Note, Task library only
 # support single channel so far.
 CHANNELS = 1
-SAVE_TO_PATH = "model/spectrogram2/converted/model_spec_metadata.tflite"
+SAVE_TO_PATH = "model/signal/converted/model_signal_metadata.tflite"
 
 # Create the metadata writer.
 writer = AudioClassifierWriter.create_for_inference(

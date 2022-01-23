@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">TFL Sound Classifier</string>
+    <string name="app_name" translatable="false">Sound Classification</string>
     <string name="label_input" translatable="false">Use Mel Spectrogram:</string>
     <string name="tensorflow_lite_logo" translatable="false">TensorFlow Lite Logo</string>
     <string name="clasfication_running" translatable="false">Text classfication is running.</string>
