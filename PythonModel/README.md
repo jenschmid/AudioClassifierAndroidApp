@@ -123,7 +123,10 @@ This list contains all resources that were used for the project:
 * [Audacity](https://www.audacityteam.org/)
 * [Librosa](https://librosa.org)
 * [Tensorflow](http://www.tensorflow.org/)
-* [``]()
+* [matplotlib](https://matplotlib.org/)
+* [numpy](https://numpy.org/)
+* [scikit_learn](https://github.com/tqdm/tqdm)
+* [tqdm](https://github.com/tqdm/tqdm)
 
 The following list presents all references that were used in this project:
 
