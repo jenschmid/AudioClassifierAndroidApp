@@ -1,4 +1,4 @@
-# Adnroid Audio Classifier
+# Android Audio Classifier
 This project contains an Android App that classifies microphone input into speech, song, and silence.
 
 The folder [PythonModel](https://github.com/jeschm/AudioClassifierAndroidApp/tree/main/PythonModel) contains all code and data used for the implementation of two tensorflow models.
